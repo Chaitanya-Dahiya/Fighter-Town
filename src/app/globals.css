@@ -141,3 +141,37 @@ body {
   outline: 2px solid hsl(var(--hud));
   outline-offset: 2px;
 }
+
+/* ─────────────────────────────────────────────────────────────
+   Scroll-driven parallax
+
+   Native scroll-driven animation runs off the main thread, so these
+   layers hold 60fps on the mid-range Android phones that carry most
+   of this site's traffic. A JS scroll handler doing the same job does
+   not. Where `animation-timeline` is unsupported the layers simply sit
+   still — a static composite, which is also exactly what the
+   reduced-motion path wants, so there is only one fallback to reason
+   about rather than two.
+   ───────────────────────────────────────────────────────────── */
+
+@keyframes parallax-drift {
+  from {
+    transform: translate3d(0, calc(var(--parallax-depth, 0) * 1px), 0)
+      scale(var(--parallax-scale, 1));
+  }
+  to {
+    transform: translate3d(0, calc(var(--parallax-depth, 0) * -1px), 0)
+      scale(var(--parallax-scale, 1));
+  }
+}
+
+@supports (animation-timeline: view()) {
+  @media not (prefers-reduced-motion: reduce) {
+    .parallax-layer {
+      animation: parallax-drift linear both;
+      animation-timeline: view();
+      animation-range: entry 0% exit 100%;
+      will-change: transform;
+    }
+  }
+}
