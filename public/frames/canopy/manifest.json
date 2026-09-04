@@ -1,0 +1,24 @@
+{
+  "basePath": "/frames/canopy",
+  "pattern": "frame_%04d",
+  "count": 60,
+  "width": 1920,
+  "height": 1080,
+  "formats": [
+    "avif",
+    "webp"
+  ],
+  "renditions": [
+    {
+      "width": 960,
+      "height": 540,
+      "suffix": "@960"
+    },
+    {
+      "width": 1920,
+      "height": 1080,
+      "suffix": "@1920"
+    }
+  ],
+  "placeholder": true
+}

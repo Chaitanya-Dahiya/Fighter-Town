@@ -13,8 +13,11 @@
   },
   "dependencies": {
     "@date-fns/tz": "^1.5.0",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
     "date-fns": "^4.4.0",
     "drizzle-orm": "^0.45.2",
+    "lucide-react": "^1.41.0",
     "next": "16.3.4",
     "next-intl": "^4.14.2",
     "postgres": "^3.4.9",
@@ -22,6 +25,7 @@
     "react-dom": "19.2.8",
     "resend": "^6.26.0",
     "stripe": "^22.6.1",
+    "tailwind-merge": "^3.6.0",
     "zod": "^4.5.4"
   },
   "devDependencies": {
@@ -32,6 +36,8 @@
     "drizzle-kit": "^0.31.10",
     "eslint": "^9",
     "eslint-config-next": "16.3.4",
+    "playwright": "^1.62.1",
+    "sharp": "^0.35.4",
     "tailwindcss": "^4",
     "typescript": "^5",
     "vitest": "^5.0.0"

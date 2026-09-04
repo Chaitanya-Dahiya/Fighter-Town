@@ -1,26 +1,143 @@
 @import "tailwindcss";
 
+/* ─────────────────────────────────────────────────────────────
+   Fightertown HUD design system
+
+   The palette is taken from real head-up display phosphor rather
+   than invented: each airframe page carries its own instrument
+   signature, and the shared chrome stays neutral so the aircraft
+   colour is the only thing that changes between sections.
+
+   Values are shadcn-compatible (--background, --foreground, --card…)
+   so any shadcn component dropped in inherits the theme untouched.
+   ───────────────────────────────────────────────────────────── */
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Structural. Dark is the *default*, not a variant — a cockpit is
+     not a light-mode surface, and every hero frame is dark. */
+  --background: 222 47% 4%;
+  --foreground: 210 40% 98%;
+  --card: 222 40% 7%;
+  --card-foreground: 210 40% 98%;
+  --popover: 222 44% 6%;
+  --popover-foreground: 210 40% 98%;
+  --muted: 217 30% 14%;
+  --muted-foreground: 215 20% 65%;
+  --border: 217 30% 18%;
+  --input: 217 30% 16%;
+  --ring: var(--hud);
+
+  /* Instrument phosphor. --hud is re-pointed per airframe below; every
+     component reads --hud, never a specific airframe colour, so a
+     section changes signature by setting one variable. */
+  --hud-f22: 158 84% 52%; /* raw green, APG-77 symbology */
+  --hud-f16: 38 96% 56%; /* amber, the classic Viper HUD */
+  --hud-rafale: 199 92% 60%; /* cool blue, Rafale MMI */
+  --hud: var(--hud-f22);
+
+  --caution: 45 96% 55%;
+  --warning: 4 86% 58%;
+  --confirm: 158 70% 45%;
+
+  /* Motion. One duration scale so parallax layers, tilts and UI
+     transitions stay in the same rhythm instead of each picking
+     their own easing. */
+  --ease-hud: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --dur-fast: 160ms;
+  --dur-base: 320ms;
+  --dur-slow: 620ms;
+
+  --radius: 0.5rem;
+}
+
+/* The site commits to the dark cockpit look, so a viewer's light
+   preference must not wash the heroes out. Only the reduced-motion
+   preference changes behaviour (below). */
+:root[data-theme="light"] {
+  color-scheme: dark;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-background: hsl(var(--background));
+  --color-foreground: hsl(var(--foreground));
+  --color-card: hsl(var(--card));
+  --color-card-foreground: hsl(var(--card-foreground));
+  --color-popover: hsl(var(--popover));
+  --color-popover-foreground: hsl(var(--popover-foreground));
+  --color-muted: hsl(var(--muted));
+  --color-muted-foreground: hsl(var(--muted-foreground));
+  --color-border: hsl(var(--border));
+  --color-input: hsl(var(--input));
+  --color-ring: hsl(var(--ring));
+
+  --color-hud: hsl(var(--hud));
+  --color-hud-dim: hsl(var(--hud) / 0.45);
+  --color-hud-glow: hsl(var(--hud) / 0.18);
+  --color-caution: hsl(var(--caution));
+  --color-warning: hsl(var(--warning));
+  --color-confirm: hsl(var(--confirm));
+
+  --radius-lg: var(--radius);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-sm: calc(var(--radius) - 4px);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/* Airframe signatures. Wrap a section in one of these and every
+   descendant's HUD colour follows. */
+[data-airframe="f22"] { --hud: var(--hud-f22); }
+[data-airframe="f16"] { --hud: var(--hud-f16); }
+[data-airframe="rafale"] { --hud: var(--hud-rafale); }
+[data-airframe="f14"] { --hud: var(--hud-f16); }
+[data-airframe="fa18"] { --hud: var(--hud-f22); }
+
+html {
+  color-scheme: dark;
+  /* Wide-gamut where the display supports it: the HUD greens and
+     ambers sit outside sRGB and go visibly flat when clamped. */
+  background-color: hsl(var(--background));
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: hsl(var(--background));
+  color: hsl(var(--foreground));
+  -webkit-font-smoothing: antialiased;
+}
+
+@supports (color: color(display-p3 1 1 1)) {
+  :root {
+    --hud-f22: 158 100% 52%;
+    --hud-f16: 38 100% 56%;
+    --hud-rafale: 199 100% 60%;
+  }
+}
+
+/* Reticle / scanline texture used behind hero copy. Kept as a utility
+   rather than a component so it can dress any surface. */
+@utility hud-grid {
+  background-image:
+    linear-gradient(hsl(var(--hud) / 0.07) 1px, transparent 1px),
+    linear-gradient(90deg, hsl(var(--hud) / 0.07) 1px, transparent 1px);
+  background-size: 44px 44px;
+}
+
+@utility hud-glow {
+  text-shadow: 0 0 18px hsl(var(--hud) / 0.55);
+}
+
+/* Every scroll-driven effect in the app is gated on this. Vestibular
+   safety, and it doubles as the accessibility floor. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+*:focus-visible {
+  outline: 2px solid hsl(var(--hud));
+  outline-offset: 2px;
 }
